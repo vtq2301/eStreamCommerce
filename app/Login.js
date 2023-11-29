@@ -11,8 +11,8 @@ import { getUser } from '../src/services/firebase/userService';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const handleLogin = (email, password) => {
+
+  const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
     .then(async (userCrendential) => {
         // if current user is vendor, redirect to Vendor/Products
@@ -21,7 +21,7 @@ export default function LoginScreen() {
         const user = userCrendential.user;
         const userData = getUser(user.uid);
 
-        if (userData.userType === 'vendor') {
+        if (userData.userType === 'consumer') {
           router.replace('/Consumer/Products');
         } else {
           router.replace('/Vendor/Products')

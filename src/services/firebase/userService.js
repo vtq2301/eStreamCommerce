@@ -1,3 +1,4 @@
+import { getAuth, deleteUser } from 'firebase/auth';
 import { db } from './firebaseConfig';
 import {
     collection, setDoc, getDoc, updateDoc, deleteDoc, doc
@@ -5,16 +6,9 @@ import {
 
 const usersCollectionRef = collection(db, 'users');
 // Create a new user
-export const createUser = async (userData) => {
+export const createUser = async (data) => {
     try {
-        await setDoc(doc(db, 'users', 'AA'), {
-            // UID: userData.uid,
-            // name: userData.name,
-            // email: userData.email,
-            // userType: userData.userType,
-            UID: "haha",
-            name: "bb",
-        })
+        await setDoc(doc(db, 'users', data.UID), data)
     } catch (error) {
         console.error("Error adding user: ", error);
     }
@@ -33,5 +27,21 @@ export const getUser = async (userId) => {
         }
     } catch (error) {
         console.error('Error getting user: ', error);
+    }
+};
+
+// Update a user
+
+// Delete a user
+export const removeUser = async(userId) => {
+    try {
+        const docRef = doc(db, 'users', userId);
+        if (getUser(userId)) {
+            const docDelete = await deleteDoc(docRef);
+            getAuth().deleteUser(userId)
+            console.log("Deleted user", userId);
+        }
+    } catch (error) {
+        console.error('Error deleting a user: ', error);
     }
 }
