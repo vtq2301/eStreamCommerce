@@ -6,8 +6,8 @@ import { router, Link } from 'expo-router';
 import { themeColors } from '../theme';
 import { db, auth } from '../src/services/firebase/firebaseConfig';
 import RNPickerSelect from 'react-native-picker-select';
-import { createUser, getUser } from '../src/services/firebase/userService';
 import {createUserWithEmailAndPassword } from 'firebase/auth';
+import { setDoc, doc } from 'firebase/firestore';
 
 export default function SignUpScreen() {
     const [name, setName] = useState('');
@@ -15,18 +15,26 @@ export default function SignUpScreen() {
     const [password, setPassword] = useState('');
     const [userType, setUserType] = useState(null);
 
+    
     const handleSignUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCrendential) => {
-            console.log(userCrendential, userCrendential.user);
-            createUser(userCrendential.user);
-            Alert.alert("Signup successfull");
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(async (userCrendential) => {
+          const userId = userCrendential.user.uid;
+          const data = {
+            name: name,
+            // address: address,
+            userType: userType,
+          }
+          await setDoc(doc(db, 'users', userId), data);
+          Alert.alert("Signup successful");
+          router.replace('/Login');
         })
         .catch((error) => {
-            Alert.alert("Signup failed", error.message);
-        }
-        );
-    }
+          // This is Firebase Auth error
+          console.error('Error creating user:', error);
+          Alert.alert("Signup failed", error.message);
+        });
+    };
     
   return (
     <View style={[styles.flexOne, { backgroundColor: themeColors.bg }]}>
